@@ -24,4 +24,32 @@ router.post('/register', async (req, res) => {
   }
 });
 
+const jwt = require('jsonwebtoken');
+
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: 'Користувача не знайдено' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Невірний пароль' });
+    }
+
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET || 'secretkey',
+      { expiresIn: '1h' }
+    );
+
+    res.json({ token, message: 'Авторизація успішна' });
+  } catch (err) {
+    res.status(500).json({ message: 'Помилка сервера' });
+  }
+});
+
 module.exports = router;
