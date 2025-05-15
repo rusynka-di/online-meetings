@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
+const meetingRoutes = require('./routes/meetings');
 require('dotenv').config();
 
 const app = express();
@@ -9,6 +10,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use('/api/auth', authRoutes);
+app.use('/api/meetings', meetingRoutes);
 
 app.get('/', (req, res) => {
   res.send('Сервер працює');
