@@ -52,4 +52,41 @@ router.post('/login', async (req, res) => {
   }
 });
 
+router.put('/:id', authMiddleware, async (req, res) => {
+  const { title, description, date } = req.body;
+
+  try {
+    const meeting = await Meeting.findOneAndUpdate(
+      { _id: req.params.id, creator: req.user.userId },
+      { title, description, date },
+      { new: true }
+    );
+
+    if (!meeting) {
+      return res.status(404).json({ message: 'Зустріч не знайдено' });
+    }
+
+    res.json({ message: 'Зустріч оновлено', meeting });
+  } catch (err) {
+    res.status(500).json({ message: 'Помилка при оновленні зустрічі' });
+  }
+});
+
+router.delete('/:id', authMiddleware, async (req, res) => {
+  try {
+    const meeting = await Meeting.findOneAndDelete({
+      _id: req.params.id,
+      creator: req.user.userId,
+    });
+
+    if (!meeting) {
+      return res.status(404).json({ message: 'Зустріч не знайдено' });
+    }
+
+    res.json({ message: 'Зустріч видалено' });
+  } catch (err) {
+    res.status(500).json({ message: 'Помилка при видаленні зустрічі' });
+  }
+});
+
 module.exports = router;

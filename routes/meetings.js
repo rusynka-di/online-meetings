@@ -22,4 +22,13 @@ router.post('/', authMiddleware, async (req, res) => {
   }
 });
 
+router.get('/', authMiddleware, async (req, res) => {
+  try {
+    const meetings = await Meeting.find({ creator: req.user.userId }).sort({ date: 1 });
+    res.json(meetings);
+  } catch (err) {
+    res.status(500).json({ message: 'Помилка при отриманні зустрічей' });
+  }
+});
+
 module.exports = router;

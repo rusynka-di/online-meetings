@@ -20,10 +20,15 @@ Content-Type: application/json
 
 POST http://localhost:3000/api/meetings
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODIyNzRhYjlhY2YwMTdlYzFkMDQ4YzAiLCJpYXQiOjE3NDcyNTgyNzIsImV4cCI6MTc0NzI2MTg3Mn0.Cmyt0i_7u-_JDdW06wvAu093PGaW-vnA_2DQMF5y7n0
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODIyNzRhYjlhY2YwMTdlYzFkMDQ4YzAiLCJpYXQiOjE3NDgxNzcwNzEsImV4cCI6MTc0ODE4MDY3MX0.aGTABJMEgsarELU6tc4mmpypgfLNGRn_688--rHiiuk
 
 {
   "title": "Перша зустріч",
   "description": "Тестова подія",
   "date": "2025-05-18T18:00:00.000Z"
 }
+
+###
+
+GET http://localhost:3000/api/meetings
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODIyNzRhYjlhY2YwMTdlYzFkMDQ4YzAiLCJpYXQiOjE3NDgxNzgwOTUsImV4cCI6MTc0ODE4MTY5NX0.pt4KWNsFeTVvps3JIOhN8xbZUnxkJ-T0bpInCbKOe10
