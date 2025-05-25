@@ -1,6 +1,8 @@
 const express = require('express');
 const Meeting = require('../models/Meeting');
 const authMiddleware = require('../middleware/authMiddleware');
+const getZoomAccessToken = require('../utils/zoomToken');
+const axios = require('axios');
 
 const router = express.Router();
 
