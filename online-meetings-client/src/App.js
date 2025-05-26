@@ -3,7 +3,7 @@ import Register from './components/Register';
 import Login from './components/Login';
 import Meetings from './components/Meetings';
 import CreateMeeting from './components/CreateMeeting';
-import Chat from './Chat';
+import Chat from './components/Chat';
 import './App.css';
 
 function App() {

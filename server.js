@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const http = require('http');
 const { Server } = require('socket.io');
+const [username, setUsername] = useState('');
 
 const authRoutes = require('./routes/auth');
 const meetingRoutes = require('./routes/meetings');
