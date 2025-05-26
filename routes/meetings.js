@@ -14,14 +14,45 @@ router.post('/', authMiddleware, async (req, res) => {
       title,
       description,
       date,
-      creator: req.user.userId
+      creator: req.user.userId,
     });
 
     await meeting.save();
-    res.status(201).json({ message: 'Зустріч створено успішно', meeting });
-  } catch (err) {
-    res.status(500).json({ message: 'Помилка при створенні зустрічі' });
-  }
+
+    const accessToken = await getZoomAccessToken();
+
+    const zoomResponse = await axios.post(
+      'https://api.zoom.us/v2/users/me/meetings',
+      {
+        topic: title,
+        type: 2,
+        start_time: date,
+        duration: 30,
+        timezone: 'Europe/Kyiv',
+        settings: {
+          join_before_host: true,
+          approval_type: 0,
+        },
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    res.status(201).json({
+      message: 'Зустріч створено успішно',
+      meeting,
+      zoom: zoomResponse.data,
+    });
+
+ } catch (err) {
+  console.error('Помилка Zoom:', err.response?.data || err.message); 
+  res.status(500).json({ message: 'Помилка при створенні зустрічі' });
+}
+
 });
 
 router.get('/', authMiddleware, async (req, res) => {

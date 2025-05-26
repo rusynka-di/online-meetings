@@ -1,30 +1,59 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
+const Meeting = require('../models/Meeting');
+const authMiddleware = require('../middleware/authMiddleware');
+const jwt = require('jsonwebtoken');
+
 
 const router = express.Router();
 
-router.post('/register', async (req, res) => {
-  const { email, password } = req.body;
+router.post('/meetings', authMiddleware, async (req, res) => {
+  const { title, date, description } = req.body;
 
   try {
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: 'Користувач уже існує' });
-    }
+    const meeting = new Meeting({
+      title,
+      description,
+      date,
+      creator: req.user.userId,
+    });
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    await meeting.save();
 
-    const newUser = new User({ email, password: hashedPassword });
-    await newUser.save();
+    const accessToken = await getZoomAccessToken();
 
-    res.status(201).json({ message: 'Користувача успішно створено' });
-  } catch (error) {
-    res.status(500).json({ message: 'Помилка сервера' });
+    const zoomResponse = await axios.post(
+      'https://api.zoom.us/v2/users/me/meetings',
+      {
+        topic: title,
+        type: 2, 
+        start_time: date,
+        duration: 30,
+        timezone: 'Europe/Kyiv',
+        settings: {
+          join_before_host: true,
+          approval_type: 0,
+        },
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    res.status(201).json({
+      message: 'Зустріч створено успішно',
+      meeting,
+      zoom: zoomResponse.data,
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ message: 'Помилка при створенні Zoom-зустрічі' });
   }
 });
-
-const jwt = require('jsonwebtoken');
 
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
@@ -47,9 +76,11 @@ router.post('/login', async (req, res) => {
     );
 
     res.json({ token, message: 'Авторизація успішна' });
-  } catch (err) {
-    res.status(500).json({ message: 'Помилка сервера' });
-  }
+ } catch (err) {
+  console.error('❌ Login error:', err); 
+  res.status(500).json({ message: 'Помилка сервера' });
+}
+
 });
 
 router.put('/:id', authMiddleware, async (req, res) => {
