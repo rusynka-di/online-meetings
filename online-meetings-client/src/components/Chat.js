@@ -2,17 +2,21 @@ import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 
 const socket = io('http://localhost:3000'); 
-
 export default function Chat() {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
+    socket.on('messageHistory', (history) => {
+      setMessages(history);
+    });
+
     socket.on('receiveMessage', (msg) => {
       setMessages((prev) => [...prev, msg]);
     });
 
     return () => {
+      socket.off('messageHistory');
       socket.off('receiveMessage');
     };
   }, []);

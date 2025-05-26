@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const http = require('http');
 const { Server } = require('socket.io');
-const [username, setUsername] = useState('');
+const Message = require('./models/Message');
 
 const authRoutes = require('./routes/auth');
 const meetingRoutes = require('./routes/meetings');
@@ -15,20 +15,33 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: '*', 
+    origin: 'http://localhost:3001', 
     methods: ['GET', 'POST']
   }
 });
 
-io.on('connection', (socket) => {
+io.on('connection', async (socket) => {
   console.log('🟢 Користувач підключився');
 
-  socket.on('sendMessage', (msg) => {
-    io.emit('receiveMessage', msg);
+  try {
+    const messages = await Message.find().sort({ createdAt: 1 });
+    socket.emit('messageHistory', messages.map(m => m.text));
+  } catch (err) {
+    console.error('❌ Помилка при отриманні історії повідомлень:', err);
+  }
+
+  socket.on('sendMessage', async (msg) => {
+    try {
+      const message = new Message({ text: msg });
+      await message.save();
+      io.emit('receiveMessage', msg);
+    } catch (err) {
+      console.error('❌ Помилка при збереженні повідомлення:', err);
+    }
   });
 
   socket.on('disconnect', () => {
-    console.log('🔴 Користувач вийшов');
+    console.log('🔴 Користувач відключився');
   });
 });
 
