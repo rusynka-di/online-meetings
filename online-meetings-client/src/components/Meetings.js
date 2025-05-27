@@ -75,13 +75,18 @@ export default function Meetings() {
 
       <ul>
         {meetings.map((m) => (
-          <li key={m._id}>
+        <li key={m._id}>
             <strong>{m.title}</strong><br />
             {m.description}<br />
-            <em>{new Date(m.date).toLocaleString()}</em>
-          </li>
-        ))}
-      </ul>
+            <em>{new Date(m.date).toLocaleString()}</em><br />
+            {m.zoomLink && (
+                <a href={m.zoomLink} target="_blank" rel="noopener noreferrer">
+                Перейти в Zoom
+                </a>
+            )}
+        </li>
+    ))}
+    </ul>
     </div>
   );
 }
