@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import '../Meetings.css';
 
 export default function Meetings() {
   const [meetings, setMeetings] = useState([]);
@@ -21,7 +21,6 @@ export default function Meetings() {
         setError('Не вдалося завантажити зустрічі');
       }
     };
-
     fetchMeetings();
   }, []);
 
@@ -44,49 +43,65 @@ export default function Meetings() {
     }
   };
 
-  return (
-    <div>
-      <h2>Список зустрічей</h2>
-      {error && <p>{error}</p>}
+  const handleDelete = async (id) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`http://localhost:3000/api/meetings/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setMeetings((prev) => prev.filter((m) => m._id !== id));
+    } catch (err) {
+      console.error('Не вдалося видалити зустріч');
+    }
+  };
 
-      <form onSubmit={handleCreate}>
+  return (
+    <div className="meetings-container">
+      <h2>Список зустрічей</h2>
+      {error && <p className="error">{error}</p>}
+
+      <form onSubmit={handleCreate} className="meeting-form">
         <input
           type="text"
           placeholder="Назва зустрічі"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
-        /><br />
+        />
         <input
           type="text"
           placeholder="Опис"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           required
-        /><br />
+        />
         <input
           type="datetime-local"
           value={date}
           onChange={(e) => setDate(e.target.value)}
           required
-        /><br />
+        />
         <button type="submit">Створити зустріч</button>
       </form>
 
-      <ul>
+      <ul className="meeting-list">
         {meetings.map((m) => (
-        <li key={m._id}>
+          <li key={m._id} className="meeting-item">
             <strong>{m.title}</strong><br />
             {m.description}<br />
             <em>{new Date(m.date).toLocaleString()}</em><br />
             {m.zoomLink && (
-                <a href={m.zoomLink} target="_blank" rel="noopener noreferrer">
+              <a href={m.zoomLink} target="_blank" rel="noopener noreferrer">
                 Перейти в Zoom
-                </a>
+              </a>
             )}
-        </li>
-    ))}
-    </ul>
+            <div className="meeting-actions">
+              <button onClick={() => handleDelete(m._id)} className="delete-btn">Видалити</button>
+              {/* Для оновлення додамо окрему логіку, якщо потрібно */}
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

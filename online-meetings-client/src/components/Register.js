@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
+import '../App.css';
 
 function Register() {
   const [email, setEmail] = useState('');
@@ -20,24 +22,30 @@ function Register() {
   };
 
   return (
-    <div>
-      <h2>Реєстрація</h2>
-      <form onSubmit={handleSubmit}>
+    <div className="auth-container">
+      <form className="auth-form" onSubmit={handleSubmit}>
+        <h2>Реєстрація</h2>
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-        /><br />
+          required
+        />
         <input
           type="password"
           placeholder="Пароль"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-        /><br />
+          required
+        />
         <button type="submit">Зареєструватися</button>
+        {message && <p>{message}</p>}
+        <div className="auth-switch">
+          Маєте акаунт? <a href="/login">Увійти</a>
+        </div>
+
       </form>
-      {message && <p>{message}</p>}
     </div>
   );
 }

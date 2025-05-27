@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import '../App.css';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -12,43 +13,38 @@ export default function Login() {
     e.preventDefault();
     try {
       const res = await axios.post('http://localhost:3000/api/auth/login', { email, password });
-
-      if (res.data?.token) {
-        localStorage.setItem('token', res.data.token);
-        setMessage('Успішна авторизація');
-        navigate('/meetings'); 
-      } else {
-        console.warn('⚠️ Токен відсутній у відповіді:', res.data);
-        setMessage('Сервер не надіслав токен');
-      }
-
+      setMessage(res.data.message);
+      localStorage.setItem('token', res.data.token);
+      navigate('/meetings');
     } catch (err) {
-      console.error('❌ Помилка при вході:', err.response?.data || err.message);
       setMessage(err.response?.data?.message || 'Помилка авторизації');
     }
   };
 
   return (
-    <div>
-      <h2>Вхід</h2>
-      <form onSubmit={handleSubmit}>
+    <div className="auth-container">
+      <form onSubmit={handleSubmit} className="auth-form">
+        <h2>Вхід</h2>
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-        /><br />
+        />
         <input
           type="password"
           placeholder="Пароль"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-        /><br />
+        />
         <button type="submit">Увійти</button>
+        {message && <p className="auth-message">{message}</p>}
+        <div className="auth-switch">
+          Немає акаунта? <a href="/register">Зареєструватись</a>
+        </div>
       </form>
-      {message && <p>{message}</p>}
     </div>
   );
 }

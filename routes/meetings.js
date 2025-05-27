@@ -63,4 +63,15 @@ router.get('/', authMiddleware, async (req, res) => {
   }
 });
 
+router.delete('/:id', authMiddleware, async (req, res) => {
+  try {
+    const meeting = await Meeting.findByIdAndDelete(req.params.id);
+    if (!meeting) return res.status(404).json({ message: 'Зустріч не знайдена' });
+    res.json({ message: 'Зустріч видалено' });
+  } catch (err) {
+    console.error('Помилка при видаленні зустрічі:', err.message);
+    res.status(500).json({ message: 'Не вдалося видалити зустріч' });
+  }
+});
+
 module.exports = router; 
