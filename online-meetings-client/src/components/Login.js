@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../App.css';
 
@@ -14,7 +14,11 @@ export default function Login() {
     try {
       const res = await axios.post('http://localhost:3000/api/auth/login', { email, password });
       setMessage(res.data.message);
+
       localStorage.setItem('token', res.data.token);
+      localStorage.setItem('userEmail', email); 
+      localStorage.setItem('userName', res.data.name); 
+
       navigate('/meetings');
     } catch (err) {
       setMessage(err.response?.data?.message || 'Помилка авторизації');

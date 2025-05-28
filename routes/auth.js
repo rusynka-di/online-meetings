@@ -6,9 +6,13 @@ const User = require('../models/User');
 const router = express.Router();
 
 router.post('/register', async (req, res) => {
-  const { email, password } = req.body;
+  const { name, email, password } = req.body;
 
   try {
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: 'Усі поля обов’язкові' });
+    }
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'Користувач уже існує' });
@@ -16,10 +20,10 @@ router.post('/register', async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = new User({ email, password: hashedPassword });
+    const user = new User({ name, email, password: hashedPassword });
     await user.save();
 
-    res.status(201).json({ message: 'Користувача зареєстровано' });
+    res.status(201).json({ message: 'Користувача зареєстровано успішно' });
   } catch (err) {
     console.error('❌ Register error:', err);
     res.status(500).json({ message: 'Помилка сервера під час реєстрації' });
@@ -46,7 +50,11 @@ router.post('/login', async (req, res) => {
       { expiresIn: '1h' }
     );
 
-    res.json({ token, message: 'Авторизація успішна' });
+    res.json({
+      token,
+      name: user.name,
+      message: 'Авторизація успішна'
+    });
   } catch (err) {
     console.error('❌ Login error:', err);
     res.status(500).json({ message: 'Помилка сервера' });

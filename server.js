@@ -23,20 +23,26 @@ const io = new Server(server, {
 io.on('connection', async (socket) => {
   console.log('🟢 Користувач підключився');
 
-  try {
-    const messages = await Message.find().sort({ createdAt: 1 });
-    socket.emit('messageHistory', messages.map(m => m.text));
-  } catch (err) {
-    console.error('❌ Помилка при отриманні історії повідомлень:', err);
-  }
+  socket.on('requestHistory', async () => {
+    try {
+      const messages = await Message.find().sort({ createdAt: 1 });
+      socket.emit('messageHistory', messages);
+    } catch (err) {
+      console.error('❌ Помилка при отриманні історії повідомлень:', err);
+    }
+  });
 
   socket.on('sendMessage', async (msg) => {
     try {
-      const message = new Message({ text: msg });
+      const message = new Message({
+        user: msg.user || 'Гість',
+        text: msg.text
+      });
       await message.save();
-      io.emit('receiveMessage', msg);
+
+      io.emit('receiveMessage', message);
     } catch (err) {
-      console.error('❌ Помилка при збереженні повідомлення:', err);
+      console.error('❌ Помилка при збереженні повідомлення:', err.message);
     }
   });
 
